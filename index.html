@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YVAINE MORTÁLIS | Grimório Sombrio</title>
+    
+    <!-- React e ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { 900: '#050505', 800: '#0a0a0a', 700: '#171717' },
+                        violet: { glow: '#8b5cf6', deep: '#4c1d95' }
+                    },
+                    animation: {
+                        'float-slow': 'float 8s ease-in-out infinite',
+                        'pulse-glow': 'pulse-glow 4s infinite',
+                        'fade-in': 'fadeIn 1s ease-out forwards',
+                        'fade-out': 'fadeOut 1s ease-out forwards',
+                    },
+                    keyframes: {
+                        float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-15px)' } },
+                        'pulse-glow': { '0%, 100%': { opacity: 0.4, transform: 'scale(1)' }, '50%': { opacity: 0.8, transform: 'scale(1.1)' } },
+                        fadeIn: { '0%': { opacity: 0 }, '100%': { opacity: 1 } },
+                        fadeOut: { '0%': { opacity: 1 }, '100%': { opacity: 0, visibility: 'hidden' } }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+
+    <style>
+        body { background-color: #050505; color: #e5e5e5; font-family: 'Cormorant Garamond', serif; overflow-x: hidden; cursor: none; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0a0a0a; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #8b5cf6; }
+        .magic-cursor { width: 20px; height: 20px; border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); transition: width 0.3s, height 0.3s; mix-blend-mode: difference; }
+        .magic-cursor-follower { width: 8px; height: 8px; background: #8b5cf6; border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); box-shadow: 0 0 20px 5px rgba(139, 92, 246, 0.4); transition: left 0.1s ease-out, top 0.1s ease-out; }
+        @media (max-width: 768px) { body { cursor: auto; } .magic-cursor, .magic-cursor-follower { display: none; } }
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        .font-garamond { font-family: 'Cormorant Garamond', serif; }
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+        .click-particle { width: 6px; height: 6px; position: fixed; background: #8b5cf6; border-radius: 50%; pointer-events: none; z-index: 9998; animation: burst 0.6s ease-out forwards; }
+        @keyframes burst { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(3); } }
+        .texture-overlay { background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.07'/%3E%3C/svg%3E"); pointer-events: none; position: fixed; inset: 0; z-index: 50; opacity: 0.2; mix-blend-mode: overlay; }
+        
+        /* Cursor piscando no final do texto */
+        .cursor-blink {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background-color: #8b5cf6;
+            margin-left: 2px;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // --- ÍCONES ---
+        const IconMoon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>;
+        const IconDroplet = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>;
+        const IconBrain = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.97-3.465"/><path d="M19.97 14.535A4 4 0 0 1 18 18"/></svg>;
+        const IconGhost = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 10h.01"/><path d="M15 10h.01"/><path d="M12 2a8 8 0 0 0-8 8v12l3-3 2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8z"/></svg>;
+        const IconFeather = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg>;
+        const IconShare = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>;
+        const IconLock = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
+        const IconX = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>;
+        const IconBookOpen = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>;
+
+        // --- TYPEWRITER CORRIGIDO ---
+        // Não processa HTML, apenas texto plano para evitar tremores.
+        const TypewriterParagraph = ({ text, delay = 0 }) => {
+            const [displayedText, setDisplayedText] = React.useState("");
+            const [started, setStarted] = React.useState(false);
+            const [finished, setFinished] = React.useState(false);
+
+            React.useEffect(() => {
+                let timeoutId;
+                let charIndex = 0;
+                let isMounted = true;
+
+                // Atraso inicial antes de começar este parágrafo
+                const startTimeout = setTimeout(() => {
+                    if (!isMounted) return;
+                    setStarted(true);
+                    
+                    const typeChar = () => {
+                        if (!isMounted) return;
+                        if (charIndex < text.length) {
+                            setDisplayedText(text.substring(0, charIndex + 1));
+                            charIndex++;
+                            // Velocidade de digitação (randomizada levemente para parecer humano)
+                            timeoutId = setTimeout(typeChar, 20 + Math.random() * 30);
+                        } else {
+                            setFinished(true);
+                        }
+                    };
+                    typeChar();
+                }, delay);
+
+                return () => {
+                    isMounted = false;
+                    clearTimeout(startTimeout);
+                    clearTimeout(timeoutId);
+                };
+            }, [text, delay]);
+
+            // Se não começou, retorna vazio. Se começou, mostra o texto + cursor (se não acabou)
+            if (!started) return null;
+
+            return (
+                <p className="mb-6 leading-relaxed text-gray-300 text-justify">
+                    {displayedText}
+                    {!finished && <span className="cursor-blink"></span>}
+                </p>
+            );
+        };
+
+        // Componente que gerencia os parágrafos em sequência
+        const GrimoireContent = ({ content }) => {
+            // Calcula delays baseados no tamanho do texto anterior
+            let currentDelay = 500;
+            return (
+                <div className="font-garamond text-xl min-h-[300px]">
+                    {content.map((para, idx) => {
+                        const thisDelay = currentDelay;
+                        // Estima tempo de leitura/escrita: 50ms por caractere
+                        currentDelay += para.length * 50 + 800; // +800ms de pausa entre parágrafos
+                        
+                        // Renderiza citação diferente de parágrafo normal
+                        if (para.startsWith('"')) {
+                            return (
+                                <div key={idx} className="border-l-2 border-violet-500 pl-4 italic text-gray-400 mb-6">
+                                    <TypewriterParagraph text={para} delay={thisDelay} />
+                                </div>
+                            );
+                        }
+                        
+                        return <TypewriterParagraph key={idx} text={para} delay={thisDelay} />;
+                    })}
+                </div>
+            );
+        };
+
+        // --- DADOS DO GRIMÓRIO (Agora em Arrays para não quebrar HTML) ---
+        const chapter1Paragraphs = [
+            "Yvaine nasceu sob um céu que jamais clareava. Na casa prateada, o tempo parecia adormecido, e cada noite era apenas a continuação da anterior. Desde pequena, ela era tratada como algo frágil demais, silenciosa demais, observadora demais. Cresceu entre templos estilhaçados e sacerdotisas que murmuravam sobre presságios.",
+            "Quando completou catorze anos, começaram os sonhos com a lua. Vozes femininas chamavam seu nome, e ela despertava com os olhos ardendo. Pouco tempo depois, descobriram a marca no centro de seu esterno, um brilho pálido que pulsava como o reflexo de água. A partir desse momento, foi isolada do resto da aldeia. Diziam que era uma escolhida. Diziam que era destino.",
+            "\"Nenhum destino, porém, é gentil.\"",
+            "Na noite do ritual, ela foi amarrada com sedas prateadas e levada ao templo maior. Quando a luz da lua desceu, algo deu errado. A energia, em vez de atravessar seu corpo e ascender, ficou presa nela. Seus olhos, antes cinzentos, se tornaram violetas, ardendo como uma ferida.",
+            "O ritual falhou. O poder se agarrou ao seu corpo como metal fundido. Às tentativas de contê-la, Yvaine tentou tocar alguém buscando ajuda, mas o próprio toque retornou contra si. A dor atravessou seus ossos, queimando por dentro como lâminas de gelo incandescente. Ninguém soube explicar a maldição, apenas temê-la.",
+            "Ela fugiu do templo em ruínas, a visão turva, sentindo o mundo ao redor apagar. Desde então, vive entre florestas sombrias e becos esquecidos. Aprendeu a se defender, a caçar, a mentir, a desaparecer."
+        ];
+
+        const grimorioChapters = [
+            { id: 1, title: "I. A Marca da Lua", locked: false, content: chapter1Paragraphs },
+            { id: 2, title: "II. Sombras em Eclypsia", locked: true, content: ["..."] },
+            { id: 3, title: "III. O Pacto de Sangue", locked: true, content: ["..."] },
+            { id: 4, title: "IV. A Revelação", locked: true, content: ["..."] }
+        ];
+
+        const Particles = () => {
+            const particles = Array.from({ length: 30 }).map((_, i) => ({
+                id: i, left: Math.random() * 100 + '%',
+                animationDuration: Math.random() * 5 + 5 + 's',
+                animationDelay: Math.random() * 5 + 's'
+            }));
+            return (<div className="particles-container">{particles.map(p => <div key={p.id} className="particle" style={{ left: p.left, width: Math.random()*3+'px', height: Math.random()*3+'px', animationDuration: p.animationDuration, animationDelay: p.animationDelay }} />)}</div>);
+        };
+
+        const ClickEffects = () => {
+            React.useEffect(() => {
+                const handleClick = (e) => {
+                    const newParticles = Array.from({ length: 6 }).map((_, i) => ({
+                        x: e.clientX, y: e.clientY, angle: (Math.PI * 2 * i) / 6
+                    }));
+                    newParticles.forEach(p => {
+                        const el = document.createElement('div'); el.className = 'click-particle';
+                        el.style.left = p.x + 'px'; el.style.top = p.y + 'px';
+                        const tx = Math.cos(p.angle) * 50; const ty = Math.sin(p.angle) * 50;
+                        el.style.setProperty('--tx', `${tx}px`); el.style.setProperty('--ty', `${ty}px`);
+                        document.body.appendChild(el); setTimeout(() => el.remove(), 600);
+                    });
+                };
+                window.addEventListener('click', handleClick); return () => window.removeEventListener('click', handleClick);
+            }, []);
+            return <style>{` .click-particle { width: 6px; height: 6px; position: fixed; background: #8b5cf6; border-radius: 50%; pointer-events: none; z-index: 9998; animation: burst 0.6s ease-out forwards; } @keyframes burst { 0% { opacity: 1; transform: scale(1); } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } } `}</style>;
+        };
+
+        const MagicCursor = () => {
+            const cursorRef = React.useRef(null); const followerRef = React.useRef(null);
+            React.useEffect(() => {
+                const moveCursor = (e) => {
+                    if(cursorRef.current) { cursorRef.current.style.left = e.clientX + 'px'; cursorRef.current.style.top = e.clientY + 'px'; }
+                    if(followerRef.current) { followerRef.current.style.left = e.clientX + 'px'; followerRef.current.style.top = e.clientY + 'px'; }
+                };
+                window.addEventListener('mousemove', moveCursor); return () => window.removeEventListener('mousemove', moveCursor);
+            }, []);
+            return (<><div ref={cursorRef} className="magic-cursor"></div><div ref={followerRef} className="magic-cursor-follower"></div></>);
+        };
+
+        const FadeInSection = ({ children, delay = 0 }) => {
+            const [isVisible, setVisible] = React.useState(false); const domRef = React.useRef();
+            React.useEffect(() => {
+                const observer = new IntersectionObserver(entries => { entries.forEach(entry => setVisible(entry.isIntersecting)); });
+                if(domRef.current) observer.observe(domRef.current); return () => { if(domRef.current) observer.unobserve(domRef.current); }
+            }, []);
+            return (<div ref={domRef} className={`transition-all duration-1000 ease-out transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`} style={{ transitionDelay: `${delay}ms` }}>{children}</div>);
+        };
+
+        const LoadingScreen = ({ onComplete }) => {
+            React.useEffect(() => { const timer = setTimeout(onComplete, 2500); return () => clearTimeout(timer); }, [onComplete]);
+            return (
+                <div className="fixed inset-0 z-[9999] bg-[#050505] flex flex-col items-center justify-center animate-fade-out" style={{ animationDelay: '2s' }}>
+                    <div className="relative mb-8"><div className="absolute inset-0 bg-violet-500 blur-xl opacity-20 animate-pulse"></div><IconMoon className="w-16 h-16 text-violet-500 animate-bounce" /></div>
+                    <h1 className="font-cinzel text-2xl tracking-[0.5em] text-gray-400 animate-pulse">CARREGANDO</h1>
+                    <div className="w-48 h-1 bg-gray-900 mt-4 rounded-full overflow-hidden"><div className="h-full bg-violet-600 animate-[width_2s_ease-in-out_forwards]" style={{ width: '0%' }}></div></div>
+                </div>
+            );
+        };
+
+        const GrimoireModal = ({ isOpen, onClose }) => {
+            const [activeChapter, setActiveChapter] = React.useState(grimorioChapters[0]);
+            if (!isOpen) return null;
+            return (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-lg animate-fade-in">
+                    <div className="absolute inset-0" onClick={onClose}></div>
+                    <div className="relative w-full max-w-5xl h-[85vh] bg-[#0a0a0a] border border-gray-800 shadow-[0_0_50px_rgba(139,92,246,0.15)] flex flex-col md:flex-row overflow-hidden rounded-sm z-10">
+                        <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-white z-20 transition-colors"><IconX className="w-6 h-6" /></button>
+                        <div className="w-full md:w-1/3 border-b md:border-b-0 md:border-r border-gray-800 p-6 bg-[#050505] flex flex-col">
+                            <h3 className="font-cinzel text-xl text-violet-500 mb-6 flex items-center gap-3 pb-4 border-b border-gray-800"><IconBookOpen className="w-5 h-5" /> ÍNDICE</h3>
+                            <ul className="space-y-3 overflow-y-auto custom-scrollbar flex-grow">
+                                {grimorioChapters.map(ch => (
+                                    <li key={ch.id} onClick={() => !ch.locked && setActiveChapter(ch)} className={`p-4 border rounded-sm cursor-pointer transition-all duration-300 relative overflow-hidden group ${ch.locked ? 'border-gray-900 text-gray-600 opacity-60 cursor-not-allowed' : 'hover:border-violet-500/50 hover:bg-violet-900/10 hover:text-violet-200'} ${activeChapter.id === ch.id ? 'border-violet-500 bg-violet-900/20 text-white' : 'border-gray-800 text-gray-400'}`}>
+                                        <div className="flex justify-between items-center relative z-10"><span className="font-cinzel text-sm tracking-widest">{ch.title}</span>{ch.locked && <IconLock className="w-4 h-4 opacity-50" />}</div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div className="w-full md:w-2/3 p-8 md:p-12 overflow-y-auto custom-scrollbar bg-[#080808] relative">
+                            <div className="relative z-10 max-w-2xl mx-auto">
+                                <span className="font-montserrat text-xs text-violet-500 tracking-[0.3em] block mb-4">CAPÍTULO {activeChapter.id}</span>
+                                <h2 className="font-cinzel text-3xl md:text-4xl text-white mb-8 pb-6 border-b border-gray-800">{activeChapter.title}</h2>
+                                <div className="relative">
+                                    {/* Use key to force re-render on chapter change */}
+                                    <GrimoireContent key={activeChapter.id} content={activeChapter.content} />
+                                </div>
+                                <div className="mt-12 flex justify-center opacity-30"><IconMoon className="w-6 h-6 text-gray-500" /></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const CharacterSheet = () => {
+            const [scrolled, setScrolled] = React.useState(false);
+            const [mousePos, setMousePos] = React.useState({ x: 0, y: 0 });
+            const [isGrimoireOpen, setIsGrimoireOpen] = React.useState(false);
+            const [loading, setLoading] = React.useState(true);
+
+            React.useEffect(() => {
+                const handleScroll = () => setScrolled(window.scrollY > 50);
+                window.addEventListener('scroll', handleScroll); return () => window.removeEventListener('scroll', handleScroll);
+            }, []);
+            React.useEffect(() => {
+                const handleMouseMove = (e) => { const x = (e.clientX/window.innerWidth)*2-1; const y = (e.clientY/window.innerHeight)*2-1; setMousePos({x,y}); };
+                window.addEventListener('mousemove', handleMouseMove); return () => window.removeEventListener('mousemove', handleMouseMove);
+            }, []);
+
+            const character = {
+                name: "YVAINE", surname: "MORTÁLIS", epithet: "A LUZ QUE FERE", subtitle: "A EXILADA DE MORTALA", class: "Alquimia & Sombras", quote: "Onde a luz salva, mas a escuridão cobra. Nenhum destino, porém, é gentil.",
+                img_hero: "https://i.ibb.co/jkXSdhFd/download-Photoroom.png", img_detail: "https://i.ibb.co/LDBtDqF8/Anya-Qadir-yennefer-yenneferofvengerberg-anya-iconsoft-icon-anyachalotra-tomriddle-tomriddlefanficti.jpg",
+                stats: [
+                    { label: "Alquimia", value: "19", icon: IconDroplet, desc: "Mestre em poções e venenos." },
+                    { label: "Vontade", value: "20", icon: IconBrain, desc: "Resistência mental inquebrável." },
+                    { label: "Maldição", value: "IV", icon: IconMoon, desc: "Toque que drena a vida." },
+                    { label: "Furtividade", value: "16", icon: IconGhost, desc: "Passos que não ecoam." },
+                ],
+                lore_intro: "Yvaine nasceu sob um céu que jamais clareava. Na casa prateada, o tempo parecia adormecido, e cada noite era apenas a continuação da anterior. Desde pequena, ela era tratada como algo frágil demais, silenciosa demais, observadora demais.",
+                lore_ritual: "Na noite do ritual, a luz da lua desceu, mas algo deu errado. A energia, em vez de atravessar seu corpo e ascender, ficou presa nela. Seus olhos, antes cinzentos, se tornaram violetas, ardendo como uma ferida. O poder agarrou-se aos seus ossos como metal fundido.",
+                lore_curse: "Toda vez que sua pele toca a de outra pessoa, o poder lunar concentrado em seu corpo reage de forma violenta, causando nela uma dor lancinante. Quanto mais forte o vínculo emocional, pior é a dor. Seus olhos violetas brilham como brasas ao sentir medo, atração ou raiva.",
+            };
+
+            return (
+                <>
+                    {loading && <LoadingScreen onComplete={() => setLoading(false)} />}
+                    <div className={`min-h-screen relative overflow-hidden transition-opacity duration-1000 ${loading ? 'opacity-0' : 'opacity-100'}`}>
+                        <MagicCursor /> <ClickEffects /> <Particles />
+                        <div className="texture-overlay"></div>
+                        <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_50%,rgba(76,29,149,0.2),transparent_70%)] animate-pulse-glow"></div>
+                        <GrimoireModal isOpen={isGrimoireOpen} onClose={() => setIsGrimoireOpen(false)} />
+                        <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-700 ${scrolled ? 'bg-black/90 backdrop-blur-md py-4 border-b border-gray-800' : 'py-6 md:py-8 bg-transparent'}`}>
+                            <div className="container mx-auto px-6 md:px-24 flex justify-end items-center"><div className="text-[10px] font-montserrat tracking-widest text-gray-400 opacity-60">VOL. I — {character.class.toUpperCase()}</div></div>
+                        </nav>
+                        <main className="relative z-10 pt-24 md:pt-32 pb-20">
+                            <section className="relative w-full min-h-[90vh] flex flex-col items-center justify-end overflow-hidden mb-24">
+                                <div className="absolute top-[15%] left-0 right-0 text-center z-10 select-none pointer-events-none transition-transform duration-100 ease-out" style={{ transform: window.innerWidth > 768 ? `translate(${mousePos.x * -20}px, ${mousePos.y * -20}px)` : 'none' }}>
+                                    <h1 className="hero-title font-cinzel text-[18vw] leading-none tracking-tight opacity-100 mix-blend-overlay text-white drop-shadow-2xl">{character.name}</h1>
+                                </div>
+                                <div className="relative z-20 w-full max-w-full md:max-w-[45vw] mt-12 md:-mt-24 pointer-events-none flex justify-center">
+                                    <img src={character.img_hero} alt={character.name} className="hero-img w-auto h-[55vh] md:h-[85vh] object-contain filter drop-shadow-[0_0_20px_rgba(139,92,246,0.2)] grayscale-[20%] brightness-95 contrast-125 transition-transform duration-100 ease-out animate-float-slow" style={{ maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)', transform: window.innerWidth > 768 ? `translate(${mousePos.x * 15}px, ${mousePos.y * 15}px)` : 'none' }} />
+                                </div>
+                                <div className="absolute bottom-12 md:bottom-24 w-full px-6 md:px-24 flex flex-col md:flex-row justify-between items-end z-30 pointer-events-auto gap-4 md:gap-0">
+                                    <div className="hidden md:block"><span className="block font-montserrat text-[10px] tracking-[0.3em] uppercase mb-1 text-gray-500">Status</span><span className="font-cinzel text-xl text-violet-400 flex items-center gap-2 drop-shadow-[0_0_8px_rgba(139,92,246,0.5)]"><IconMoon className="animate-pulse w-4 h-4" /> AMALDIÇOADA</span></div>
+                                    <div className="w-full md:w-auto text-center md:text-right bg-black/40 backdrop-blur-md p-6 border-l-2 border-violet-500 shadow-[0_0_30px_rgba(0,0,0,0.5)]"><h2 className="font-cinzel text-2xl md:text-4xl uppercase mb-2 leading-none text-white tracking-widest">{character.subtitle}</h2><p className="font-garamond text-xl italic text-gray-400">"{character.epithet}"</p></div>
+                                </div>
+                            </section>
+                            <section className="container mx-auto px-6 md:px-24 mb-24 md:mb-32 relative z-20">
+                                <FadeInSection>
+                                    <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center border-t border-b border-gray-800 py-12 md:py-16 bg-black/20 backdrop-blur-sm">
+                                        <div className="col-span-1 md:col-span-5 border-r-0 md:border-r border-gray-800 h-full flex flex-col justify-center md:pr-8 text-center md:text-left"><h2 className="font-cinzel text-3xl md:text-5xl mb-6 leading-[0.9] text-gray-200">A CORTE DA <br/><span className="italic font-garamond font-light text-violet-500 drop-shadow-[0_0_10px_rgba(139,92,246,0.5)]">medicina &</span><br/>DAS SOMBRAS.</h2></div>
+                                        <div className="col-span-1 md:col-span-7 pl-0 md:pl-8"><div className="font-garamond text-2xl md:text-4xl italic leading-tight text-gray-400 text-center md:text-left">"{character.quote}"</div><p className="font-montserrat text-xs tracking-widest text-gray-600 uppercase mt-8 border-l-2 border-violet-900 pl-4">Fragmento de Memória: O Ritual Falho</p></div>
+                                    </div>
+                                </FadeInSection>
+                            </section>
+                            <section className="container mx-auto px-6 md:px-24 mb-24 md:mb-32">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 border-t border-gray-800">
+                                    {character.stats.map((stat, idx) => (
+                                        <FadeInSection key={idx} delay={idx * 100}>
+                                            <div className="border-b border-r-0 md:border-r border-gray-800 p-8 md:p-12 hover:bg-[#0f0f0f] transition-all duration-500 group relative overflow-hidden cursor-none h-full">
+                                                <div className="absolute inset-0 bg-gradient-to-tr from-violet-900/20 to-transparent opacity-30 md:group-hover:opacity-100 transition-opacity duration-500"></div>
+                                                <div className="relative z-10 text-center md:text-left">
+                                                    <div className="hidden md:block absolute top-0 right-0 text-gray-700 group-hover:text-violet-400 transition-colors transform group-hover:scale-110 duration-500"><stat.icon className="w-12 h-12" /></div>
+                                                    <div className="md:hidden flex justify-center mb-4 text-violet-500"><stat.icon className="w-8 h-8 drop-shadow-[0_0_10px_rgba(139,92,246,0.3)]" /></div>
+                                                    <span className="font-montserrat text-[9px] tracking-[0.3em] uppercase text-gray-500 block mb-4 group-hover:text-violet-300 transition-colors">{stat.label}</span>
+                                                    <span className="font-cinzel text-4xl md:text-5xl text-gray-200 block mb-2 drop-shadow-lg">{stat.value}</span>
+                                                    <div className="h-auto md:h-0 md:group-hover:h-auto overflow-hidden transition-all duration-300 opacity-100 md:opacity-0 md:group-hover:opacity-100"><p className="font-garamond text-sm italic text-gray-400 mt-2">{stat.desc}</p></div>
+                                                </div>
+                                            </div>
+                                        </FadeInSection>
+                                    ))}
+                                </div>
+                            </section>
+                            <section className="container mx-auto px-6 md:px-24 mb-24">
+                                <div className="flex flex-col lg:flex-row gap-12 md:gap-16">
+                                    <div className="w-full lg:w-4/12 flex flex-col gap-8 order-2 lg:order-1">
+                                        <FadeInSection>
+                                            <div className="relative aspect-[3/4] overflow-hidden grayscale contrast-125 border border-gray-800 p-1 group">
+                                                <div className="absolute inset-0 bg-violet-900/20 mix-blend-overlay z-10"></div>
+                                                <img src={character.img_detail} alt="Detail" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100" />
+                                                <div className="absolute top-4 left-4 mix-blend-difference text-white font-montserrat text-[10px] tracking-widest uppercase z-20">Fig. 1.2 — A Lua</div>
+                                            </div>
+                                            <div className="bg-[#0a0a0a] text-gray-300 p-8 text-center mt-8 border border-gray-800 shadow-[0_0_30px_rgba(0,0,0,0.8)]"><IconGhost className="mx-auto mb-4 text-violet-500 animate-pulse w-6 h-6" /><p className="font-garamond text-xl italic leading-relaxed">"Os olhos violetas, brilhantes como ametista molhada, são sua cicatriz eterna."</p></div>
+                                        </FadeInSection>
+                                    </div>
+                                    <div className="w-full lg:w-8/12 lg:pl-12 order-1 lg:order-2">
+                                        <FadeInSection delay={200}>
+                                            <div className="flex items-baseline justify-between border-b border-gray-800 pb-4 mb-8 md:mb-12"><h3 className="font-cinzel text-2xl md:text-3xl text-gray-200">CRÔNICA</h3><span className="font-montserrat text-[10px] uppercase tracking-widest animate-pulse text-violet-500">Capítulo Único</span></div>
+                                            <div className="font-garamond text-lg md:text-2xl leading-relaxed text-gray-400 text-justify columns-1 md:columns-2 gap-12 space-y-8">
+                                                <p className="first-letter:text-6xl md:first-letter:text-7xl first-letter:font-cinzel first-letter:float-left first-letter:pr-4 first-letter:leading-[0.8] first-letter:text-white hover:text-gray-200 transition-colors">{character.lore_intro} Cresceu entre templos estilhaçados e sacerdotisas que murmuravam sobre presságios.</p>
+                                                <p>{character.lore_ritual} A dor atravessou seus ossos, queimando por dentro como lâminas de gelo incandescente.</p>
+                                                <div className="p-6 bg-violet-900/10 border-l-2 border-violet-600 my-4 shadow-[0_0_20px_rgba(76,29,149,0.2)]"><span className="block font-cinzel text-sm tracking-widest text-violet-300 mb-2 uppercase">A Maldição</span><p>{character.lore_curse}</p></div>
+                                            </div>
+                                            <div className="mt-12 md:mt-16 flex flex-col sm:flex-row gap-4 md:gap-6">
+                                                <button onClick={() => setIsGrimoireOpen(true)} className="h-12 px-8 bg-gray-100 text-black font-montserrat text-[10px] tracking-[0.2em] uppercase hover:bg-violet-600 hover:text-white hover:scale-105 transition-all duration-300 flex justify-center items-center gap-3 shadow-[0_0_15px_rgba(255,255,255,0.1)] w-full sm:w-auto cursor-pointer"><IconFeather className="w-4 h-4" /> Abrir Grimório</button>
+                                                <button className="h-12 px-8 border border-gray-600 text-gray-300 font-montserrat text-[10px] tracking-[0.2em] uppercase hover:border-white hover:text-white transition-all duration-300 flex justify-center items-center gap-3 w-full sm:w-auto"><IconShare className="w-4 h-4" /> Compartilhar</button>
+                                            </div>
+                                        </FadeInSection>
+                                    </div>
+                                </div>
+                            </section>
+                            <footer className="bg-[#050505] text-white py-16 md:py-24 text-center border-t border-gray-800 relative overflow-hidden">
+                                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_100%,rgba(76,29,149,0.3),transparent_60%)] pointer-events-none"></div>
+                                <div className="relative z-10"><div className="font-cinzel text-3xl md:text-4xl mb-4 tracking-widest opacity-90 hover:text-violet-500 transition-colors cursor-default">YVAINE</div><div className="font-montserrat text-[10px] tracking-[0.6em] text-gray-600 uppercase">The Exile of Mortala</div></div>
+                            </footer>
+                        </main>
+                    </div>
+                </>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<CharacterSheet />);
+    </script>
+</body>
+</html>
