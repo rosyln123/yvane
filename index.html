@@ -1,0 +1,313 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Scroll, Sword, Shield, Brain, Sparkles, Feather, Share2, Moon, Droplet, Eye, Ghost } from 'lucide-react';
+
+// Hook simples para detectar quando um elemento entra na tela (para animações)
+const useOnScreen = (options) => {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setVisible(true);
+        observer.disconnect(); // Anima apenas uma vez
+      }
+    }, options);
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => {
+      if (ref.current) observer.unobserve(ref.current);
+    };
+  }, [ref, options]);
+
+  return [ref, visible];
+};
+
+// Componente para animar seções
+const FadeInSection = ({ children, delay = 0 }) => {
+  const [ref, visible] = useOnScreen({ threshold: 0.1 });
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-1000 ease-out transform ${
+        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+      }`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+};
+
+const CharacterSheet = () => {
+  const [scrolled, setScrolled] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  // Efeito de scroll para navbar
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Efeito de Parallax do Mouse
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      // Normaliza a posição do mouse entre -1 e 1
+      const x = (e.clientX / window.innerWidth) * 2 - 1;
+      const y = (e.clientY / window.innerHeight) * 2 - 1;
+      setMousePos({ x, y });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  const character = {
+    name: "YVAINE",
+    surname: "MORTÁLIS",
+    epithet: "A LUZ QUE FERE",
+    subtitle: "A EXILADA DE MORTALA",
+    class: "Alquimia & Sombras",
+    quote: "Onde a luz salva, mas a escuridão cobra. Nenhum destino, porém, é gentil.",
+    
+    img_hero: "https://i.ibb.co/jkXSdhFd/download-Photoroom.png", 
+    img_detail: "https://i.ibb.co/LDBtDqF8/Anya-Qadir-yennefer-yenneferofvengerberg-anya-iconsoft-icon-anyachalotra-tomriddle-tomriddlefanficti.jpg",
+
+    stats: [
+      { label: "Alquimia", value: "19", icon: Droplet, desc: "Mestre em poções e venenos." },
+      { label: "Vontade", value: "20", icon: Brain, desc: "Resistência mental inquebrável." },
+      { label: "Maldição", value: "IV", icon: Moon, desc: "Toque que drena a vida." },
+      { label: "Furtividade", value: "16", icon: Ghost, desc: "Passos que não ecoam." },
+    ],
+    lore_intro: "Yvaine nasceu sob um céu que jamais clareava. Na casa prateada, o tempo parecia adormecido, e cada noite era apenas a continuação da anterior. Desde pequena, ela era tratada como algo frágil demais, silenciosa demais, observadora demais.",
+    lore_ritual: "Na noite do ritual, a luz da lua desceu, mas algo deu errado. A energia, em vez de atravessar seu corpo e ascender, ficou presa nela. Seus olhos, antes cinzentos, se tornaram violetas, ardendo como uma ferida. O poder agarrou-se aos seus ossos como metal fundido.",
+    lore_curse: "Toda vez que sua pele toca a de outra pessoa, o poder lunar concentrado em seu corpo reage de forma violenta, causando nela uma dor lancinante. Quanto mais forte o vínculo emocional, pior é a dor. Seus olhos violetas brilham como brasas ao sentir medo, atração ou raiva.",
+  };
+
+  return (
+    <div className="min-h-screen bg-[#FDFBF7] text-[#1a1a1a] selection:bg-purple-900 selection:text-white font-sans overflow-x-hidden">
+      <style>
+        {`
+          @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@200;300;400;500&display=swap');
+          
+          .font-cinzel { font-family: 'Cinzel', serif; }
+          .font-garamond { font-family: 'Cormorant Garamond', serif; }
+          .font-montserrat { font-family: 'Montserrat', sans-serif; }
+          
+          .texture-overlay {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            pointer-events: none;
+          }
+
+          /* Animação suave de flutuação */
+          @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+          }
+          .animate-float {
+            animation: float 6s ease-in-out infinite;
+          }
+        `}
+      </style>
+
+      <div className="fixed inset-0 texture-overlay z-50 mix-blend-multiply opacity-40 pointer-events-none"></div>
+
+      {/* Grid Lines */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute left-6 md:left-24 top-0 bottom-0 w-px bg-gray-300/50"></div>
+        <div className="absolute right-6 md:right-24 top-0 bottom-0 w-px bg-gray-300/50"></div>
+        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-200/50 hidden md:block"></div>
+        <div className="absolute top-24 left-0 right-0 h-px bg-gray-300/50"></div>
+      </div>
+
+      <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-700 ${scrolled ? 'bg-[#FDFBF7]/90 backdrop-blur-md py-4 border-b border-gray-200' : 'py-8 bg-transparent'}`}>
+        <div className="container mx-auto px-6 md:px-24 flex justify-end items-center">
+          <div className="text-[10px] font-montserrat tracking-widest text-gray-500">
+            VOL. I — {character.class.toUpperCase()}
+          </div>
+        </div>
+      </nav>
+
+      <main className="relative z-10 pt-32 pb-20">
+        
+        {/* HERO SECTION INTERATIVA */}
+        <section className="relative w-full min-h-[90vh] flex flex-col items-center justify-end md:justify-end overflow-hidden mb-24 perspective-1000">
+          
+          {/* TÍTULO DE FUNDO (Move-se levemente oposto ao mouse) */}
+          <div 
+            className="absolute top-[15%] left-0 right-0 text-center z-10 select-none pointer-events-none transition-transform duration-100 ease-out"
+            style={{ transform: `translate(${mousePos.x * -20}px, ${mousePos.y * -20}px)` }}
+          >
+             <h1 className="font-cinzel text-[18vw] md:text-[16vw] leading-none tracking-tight text-[#1a1a1a] opacity-100 mix-blend-normal">
+               {character.name}
+             </h1>
+          </div>
+
+          {/* IMAGEM HERO (Move-se com o mouse - Efeito Parallax) */}
+          <div className="relative z-20 w-full max-w-[90vw] md:max-w-[45vw] mt-12 md:-mt-24 pointer-events-none flex justify-center">
+            <img 
+              src={character.img_hero}
+              alt={character.name}
+              className="w-auto h-[65vh] md:h-[85vh] object-contain filter drop-shadow-2xl grayscale-[20%] contrast-110 transition-transform duration-100 ease-out"
+              style={{
+                 maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
+                 WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
+                 transform: `translate(${mousePos.x * 15}px, ${mousePos.y * 15}px) scale(1.02)`
+              }}
+            />
+          </div>
+
+          {/* DETALHES FLUTUANTES */}
+          <div className="absolute bottom-12 md:bottom-24 w-full px-6 md:px-24 flex justify-between items-end z-30 pointer-events-auto">
+             <div className="hidden md:block animate-float" style={{ animationDelay: '0.5s' }}>
+                <span className="block font-montserrat text-[10px] tracking-[0.3em] uppercase mb-1">Status</span>
+                <span className="font-cinzel text-xl text-purple-900 flex items-center gap-2">
+                   <Moon size={16} className="animate-pulse" /> AMALDIÇOADA
+                </span>
+             </div>
+
+             <div className="text-center md:text-right max-w-lg mx-auto md:mx-0 bg-[#FDFBF7]/80 backdrop-blur-sm p-6 border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-500 animate-float">
+                <h2 className="font-cinzel text-2xl md:text-4xl uppercase mb-2 leading-none">
+                  {character.subtitle}
+                </h2>
+                <p className="font-garamond text-xl italic text-gray-600">
+                  "{character.epithet}"
+                </p>
+             </div>
+          </div>
+        </section>
+
+        {/* SECTION: PHILOSOPHY (Fade In) */}
+        <section className="container mx-auto px-6 md:px-24 mb-32 relative z-20">
+          <FadeInSection>
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-center border-t border-b border-gray-300 py-16">
+              <div className="col-span-1 md:col-span-5 border-r-0 md:border-r border-gray-200 h-full flex flex-col justify-center pr-8">
+                <h2 className="font-cinzel text-4xl md:text-5xl mb-6 leading-[0.9] text-gray-900">
+                  A CORTE DA <br/>
+                  <span className="italic font-garamond font-light text-gray-400">medicina &</span><br/>
+                  DAS SOMBRAS.
+                </h2>
+              </div>
+              
+              <div className="col-span-1 md:col-span-7 pl-0 md:pl-8">
+                <div className="font-garamond text-3xl md:text-4xl italic leading-tight text-gray-800">
+                  "{character.quote}"
+                </div>
+                <p className="font-montserrat text-xs tracking-widest text-gray-500 uppercase mt-8 border-l-2 border-black pl-4">
+                  Fragmento de Memória: O Ritual Falho
+                </p>
+              </div>
+            </div>
+          </FadeInSection>
+        </section>
+
+        {/* SECTION: STATS (Interactive Cards) */}
+        <section className="container mx-auto px-6 md:px-24 mb-32">
+           <div className="grid grid-cols-2 md:grid-cols-4 border-t border-black">
+              {character.stats.map((stat, idx) => (
+                <FadeInSection key={idx} delay={idx * 100}>
+                  <div className="border-b border-r border-gray-200 p-8 md:p-12 hover:bg-white transition-all duration-300 group relative overflow-hidden cursor-pointer hover:shadow-inner h-full">
+                    {/* Background Shine Effect on Hover */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-purple-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    <div className="relative z-10">
+                      <div className="absolute top-0 right-0 text-gray-200 group-hover:text-purple-200 transition-colors transform group-hover:scale-110 duration-500">
+                        <stat.icon size={48} strokeWidth={0.5} />
+                      </div>
+                      <span className="font-montserrat text-[9px] tracking-[0.3em] uppercase text-gray-500 block mb-4 group-hover:text-purple-900 transition-colors">{stat.label}</span>
+                      <span className="font-cinzel text-4xl md:text-5xl text-gray-900 block mb-2">{stat.value}</span>
+                      
+                      {/* Descrição que aparece no hover */}
+                      <div className="h-0 group-hover:h-auto overflow-hidden transition-all duration-300 opacity-0 group-hover:opacity-100">
+                        <p className="font-garamond text-sm italic text-gray-600 mt-2">{stat.desc}</p>
+                      </div>
+                    </div>
+                  </div>
+                </FadeInSection>
+              ))}
+           </div>
+        </section>
+
+        {/* SECTION: LORE */}
+        <section className="container mx-auto px-6 md:px-24 mb-24">
+           <div className="flex flex-col lg:flex-row gap-16">
+              
+              {/* Left Column */}
+              <div className="w-full lg:w-4/12 flex flex-col gap-8">
+                 <FadeInSection>
+                   <div className="relative aspect-[3/4] overflow-hidden grayscale contrast-125 border border-gray-900 p-1 group cursor-pointer">
+                      <img 
+                        src={character.img_detail}
+                        alt="Detail" 
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-purple-900/10 transition-colors duration-500"></div>
+                      <div className="absolute top-4 left-4 mix-blend-difference text-white font-montserrat text-[10px] tracking-widest uppercase">
+                         Fig. 1.2 — A Lua
+                      </div>
+                   </div>
+                   
+                   <div className="bg-black text-white p-8 text-center mt-8 shadow-2xl transform hover:-translate-y-2 transition-transform duration-300">
+                      <Ghost className="mx-auto mb-4 text-purple-400 animate-pulse" size={24} />
+                      <p className="font-garamond text-xl italic leading-relaxed">
+                         "Os olhos violetas, brilhantes como ametista molhada, são sua cicatriz eterna."
+                      </p>
+                   </div>
+                 </FadeInSection>
+              </div>
+
+              {/* Right Column */}
+              <div className="w-full lg:w-8/12 lg:pl-12">
+                 <FadeInSection delay={200}>
+                   <div className="flex items-baseline justify-between border-b border-black pb-4 mb-12">
+                      <h3 className="font-cinzel text-3xl">CRÔNICA</h3>
+                      <span className="font-montserrat text-[10px] uppercase tracking-widest animate-pulse">Capítulo Único</span>
+                   </div>
+                   
+                   <div className="font-garamond text-xl md:text-2xl leading-relaxed text-gray-800 text-justify columns-1 md:columns-2 gap-12 space-y-8">
+                      <p className="first-letter:text-7xl first-letter:font-cinzel first-letter:float-left first-letter:pr-4 first-letter:leading-[0.8] hover:text-purple-900 transition-colors cursor-text">
+                         {character.lore_intro} Cresceu entre templos estilhaçados e sacerdotisas que murmuravam sobre presságios. Sempre que ela passava, as anciãs a acompanhavam com o olhar, como se esperassem que algo nela se quebrasse.
+                      </p>
+                      <p>
+                         Quando completou catorze anos, descobriram a marca no centro de seu esterno, um brilho pálido que pulsava como o reflexo de água.
+                      </p>
+                      <p>
+                         {character.lore_ritual} A dor atravessou seus ossos, queimando por dentro como lâminas de gelo incandescente.
+                      </p>
+                      <div className="p-6 bg-purple-50 border-l-2 border-purple-900 my-4 hover:bg-purple-100 transition-colors">
+                        <span className="block font-cinzel text-sm tracking-widest text-black mb-2 uppercase">A Maldição</span>
+                        <p>{character.lore_curse} Se a ligação emocional for profunda demais, a dor pode ser fatal.</p>
+                      </div>
+                   </div>
+
+                   <div className="mt-16 flex gap-6">
+                      <button className="h-12 px-8 bg-black text-white font-montserrat text-[10px] tracking-[0.2em] uppercase hover:bg-purple-900 hover:scale-105 transition-all duration-300 flex items-center gap-3 shadow-lg">
+                         <Feather size={14} /> Abrir Grimório
+                      </button>
+                      <button className="h-12 px-8 border border-black font-montserrat text-[10px] tracking-[0.2em] uppercase hover:bg-black hover:text-white transition-all duration-300 flex items-center gap-3">
+                         <Share2 size={14} /> Compartilhar
+                      </button>
+                   </div>
+                 </FadeInSection>
+              </div>
+           </div>
+        </section>
+
+        <footer className="bg-[#111] text-white py-24 text-center border-t border-gray-800">
+           <div className="font-cinzel text-4xl mb-4 tracking-widest opacity-90 hover:text-purple-400 transition-colors cursor-default">YVAINE</div>
+           <div className="font-montserrat text-[10px] tracking-[0.6em] text-gray-500 uppercase">
+              The Exile of Mortala
+           </div>
+        </footer>
+
+      </main>
+    </div>
+  );
+};
+
+export default CharacterSheet;
